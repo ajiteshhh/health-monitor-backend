@@ -54,15 +54,26 @@ async def post_ecg(request: Request):
     conn.close()
     return {"success": True, "message": "ECG data saved"}
 
-@app.get("/api/v1/vitals/latest")
+@app.get("/api/v1/vitals")
 def get_vitals():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM vitals ORDER BY id DESC LIMIT 10")
     rows = cur.fetchall()
+    
+    vitals_list = []
+    for row in rows:
+        vitals_list.append({
+            "id": row[0],
+            "heart_rate": row[1],
+            "spo2": row[2],
+            "temperature": row[3],
+            "timestamp": row[4]
+        })
+        
     cur.close()
     conn.close()
-    return {"vitals": rows}
+    return vitals_list
 
 if __name__ == "__main__":
     import uvicorn
